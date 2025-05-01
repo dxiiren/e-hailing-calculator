@@ -4,8 +4,8 @@ const messages = {
     fuelCost: "💸 How much do you usually spend on fuel? (RM)",
     fuelKm: "🛣️ How far can you drive with that fuel? (KM)",
     perKm: "📈 How much do you earn per kilometer? (RM)",
-    netTarget: "Net Income Targets (RM)",
-    workingDays: "Working Days per Month",
+    netTarget: "Net Income Targets (RM) - multiple selections allowed",
+    workingDays: "Working Days per Month - multiple selections allowed",
     export: "Export to PDF",
     table: {
       days: "Working Days",
@@ -21,8 +21,8 @@ const messages = {
     fuelCost: "💸 Berapakah kos miyak petrol yang anda biasa isi? (RM)",
     fuelKm: "🛣️ Berapakah jarak yang boleh dipandu dengan isian itu? (KM)",
     perKm: "📈 Berapakah pendapatan anda dapat bagi setiap km? (RM)",
-    netTarget: "Sasaran Pendapatan Bersih (RM)",
-    workingDays: "Hari Bekerja Sebulan",
+    netTarget: "Sasaran Pendapatan Bersih (RM) - pelbagai pilihan dibenarkan",
+    workingDays: "Hari Bekerja Sebulan - pelbagai pilihan dibenarkan",
     export: "Eksport ke PDF",
     table: {
       days: "Hari Bekerja",
