@@ -28,12 +28,12 @@
   </head>
   <body class="bg-gray-100 p-4 min-h-screen">
     <div id="app" class="max-w-7xl mx-auto">
-      <h1 class="text-2xl font-bold mb-6">📊 Financial Calculator</h1>
+      <h1 class="text-2xl font-bold mb-6">📊E Hailing Financial Calculator</h1>
 
       <!-- Fuel Efficiency & Earnings -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div>
-          <label class="block font-semibold mb-1">Fuel Cost (RM)</label>
+          <label class="block font-semibold mb-1">💸 How much do you usually spend on fuel? (RM)</label>
           <input
             type="number"
             v-model.number="fuelCost"
@@ -42,7 +42,7 @@
           />
         </div>
         <div>
-          <label class="block font-semibold mb-1">KM Per Full Tank</label>
+          <label class="block font-semibold mb-1">🛣️ How far can you drive with that fuel? (KM)</label>
           <input
             type="number"
             v-model.number="fuelKm"
@@ -51,7 +51,7 @@
           />
         </div>
         <div>
-          <label class="block font-semibold mb-1">Earnings Per KM (RM)</label>
+          <label class="block font-semibold mb-1">📈 How much do you earn per kilometer? (RM)</label>
           <input
             type="number"
             v-model.number="earningsPerKm"
