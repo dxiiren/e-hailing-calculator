@@ -34,6 +34,67 @@ describe("computeRequirement — regression pins (old in-component math)", () =>
   });
 });
 
+describe("computeRequirement — unprofitability guard", () => {
+  // The documented bug: with no guard, cost/km >= earnings/km made requiredKM
+  // go negative (or Infinity at exact break-even). The result must instead be
+  // flagged unprofitable, with no misleading numbers.
+  it("flags unprofitable when fuel cost per km >= earnings per km", () => {
+    // Strictly worse: cost RM0.15/km, earning only RM0.10/km.
+    const losing = computeRequirement({
+      income: 3500,
+      days: 20,
+      fuelCost: 60,
+      fuelKm: 400,
+      earningsPerKm: 0.1,
+    });
+    expect(losing.unprofitable).toBe(true);
+    expect(losing.requiredKM).toBeNull();
+    expect(losing.grossPerDay).toBeNull();
+    expect(losing.grossPerMonth).toBeNull();
+
+    // Exact break-even: cost RM0.15/km == earnings RM0.15/km.
+    const breakEven = computeRequirement({
+      income: 3500,
+      days: 20,
+      fuelCost: 60,
+      fuelKm: 400,
+      earningsPerKm: 0.15,
+    });
+    expect(breakEven.unprofitable).toBe(true);
+    expect(breakEven.requiredKM).toBeNull();
+  });
+
+  it("does not flag the profitable default inputs", () => {
+    const r = computeRequirement({ income: 3500, days: 20, ...defaults });
+    expect(r.unprofitable).toBe(false);
+    expect(r.requiredKM).toBe(319);
+  });
+
+  it("flags zero/invalid efficiency inputs as unprofitable, not NaN", () => {
+    // fuelKm 0 -> cost per km is Infinite: driving cannot pay for itself.
+    const noRange = computeRequirement({
+      income: 3500,
+      days: 20,
+      fuelCost: 60,
+      fuelKm: 0,
+      earningsPerKm: 0.7,
+    });
+    expect(noRange.unprofitable).toBe(true);
+    expect(noRange.requiredKM).toBeNull();
+
+    // earningsPerKm 0 with a real fuel cost: pure loss.
+    const noEarnings = computeRequirement({
+      income: 3500,
+      days: 20,
+      fuelCost: 60,
+      fuelKm: 400,
+      earningsPerKm: 0,
+    });
+    expect(noEarnings.unprofitable).toBe(true);
+    expect(noEarnings.requiredKM).toBeNull();
+  });
+});
+
 describe("computeCombinations", () => {
   it("crosses every income with every days value", () => {
     const rows = computeCombinations({
