@@ -58,8 +58,9 @@ change if ever wanted.
 
 ## Can I use custom income targets or day counts?
 
-Yes — select `Custom` in either multi-select and "+ Add Custom Income/Days" inputs appear;
-each filled value joins the combination grid alongside the preset selections.
+Yes — tap the `Custom` chip in either toggle group and the custom-value inputs appear (with an
+"Add custom income/days" button for more rows); each filled value joins the combination grid
+alongside the preset selections.
 
 ## Related docs
 

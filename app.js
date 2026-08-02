@@ -6,15 +6,33 @@ import {
 
 const messages = {
   en: {
-    title: "📊 E Hailing Financial Calculator",
-    fuelCost: "💸 How much do you usually spend on fuel? (RM)",
-    fuelKm: "🛣️ How far can you drive with that fuel? (KM)",
-    perKm: "📈 How much do you earn per kilometer? (RM)",
+    title: "E-Hailing Financial Calculator",
+    tagline:
+      "Plan your driving month — targets, distance, and gross earnings at a glance.",
+    sections: {
+      inputs: "Fuel & Earnings",
+      targets: "Targets & Working Days",
+      results: "Results",
+    },
+    fuelCost: "How much do you usually spend on fuel? (RM)",
+    fuelKm: "How far can you drive with that fuel? (KM)",
+    perKm: "How much do you earn per kilometer? (RM)",
     netTarget: "Net Income Targets (RM) - multiple selections allowed",
     workingDays: "Working Days per Month - multiple selections allowed",
+    custom: "Custom",
+    daysUnit: "days",
+    addIncome: "Add custom income",
+    addDays: "Add custom days",
+    customIncomePlaceholder: "Enter custom income",
+    customDaysPlaceholder: "Enter custom days",
+    rows: "{n} row | {n} rows",
+    empty: {
+      title: "No combinations yet",
+      body: "Pick at least one net income target and one working-day count, and fill in your fuel details above.",
+    },
     export: "Export to PDF",
     unprofitable:
-      "⚠️ Unprofitable: your fuel cost per km (RM {cost}) is at or above your earnings per km (RM {earn}). No distance can reach a net income target — raise earnings per km or cut fuel cost.",
+      "Unprofitable: your fuel cost per km (RM {cost}) is at or above your earnings per km (RM {earn}). No distance can reach a net income target — raise earnings per km or cut fuel cost.",
     notApplicable: "—",
     table: {
       days: "Working Days",
@@ -26,15 +44,33 @@ const messages = {
     },
   },
   ms: {
-    title: "📊 Kalkulator Kewangan E Hailing",
-    fuelCost: "💸 Berapakah kos miyak petrol yang anda biasa isi? (RM)",
-    fuelKm: "🛣️ Berapakah jarak yang boleh dipandu dengan isian itu? (KM)",
-    perKm: "📈 Berapakah pendapatan anda dapat bagi setiap km? (RM)",
+    title: "Kalkulator Kewangan E-Hailing",
+    tagline:
+      "Rancang bulan pemanduan anda — sasaran, jarak dan pendapatan kasar sepintas lalu.",
+    sections: {
+      inputs: "Minyak & Pendapatan",
+      targets: "Sasaran & Hari Bekerja",
+      results: "Keputusan",
+    },
+    fuelCost: "Berapakah kos miyak petrol yang anda biasa isi? (RM)",
+    fuelKm: "Berapakah jarak yang boleh dipandu dengan isian itu? (KM)",
+    perKm: "Berapakah pendapatan anda dapat bagi setiap km? (RM)",
     netTarget: "Sasaran Pendapatan Bersih (RM) - pelbagai pilihan dibenarkan",
     workingDays: "Hari Bekerja Sebulan - pelbagai pilihan dibenarkan",
+    custom: "Tersuai",
+    daysUnit: "hari",
+    addIncome: "Tambah pendapatan tersuai",
+    addDays: "Tambah hari tersuai",
+    customIncomePlaceholder: "Masukkan pendapatan tersuai",
+    customDaysPlaceholder: "Masukkan bilangan hari",
+    rows: "{n} baris | {n} baris",
+    empty: {
+      title: "Tiada kombinasi lagi",
+      body: "Pilih sekurang-kurangnya satu sasaran pendapatan bersih dan satu bilangan hari bekerja, dan isikan maklumat minyak anda di atas.",
+    },
     export: "Eksport ke PDF",
     unprofitable:
-      "⚠️ Tidak menguntungkan: kos petrol setiap km (RM {cost}) sama atau melebihi pendapatan setiap km (RM {earn}). Tiada jarak yang dapat mencapai sasaran pendapatan bersih — naikkan pendapatan setiap km atau kurangkan kos petrol.",
+      "Tidak menguntungkan: kos petrol setiap km (RM {cost}) sama atau melebihi pendapatan setiap km (RM {earn}). Tiada jarak yang dapat mencapai sasaran pendapatan bersih — naikkan pendapatan setiap km atau kurangkan kos petrol.",
     notApplicable: "—",
     table: {
       days: "Hari Bekerja",
@@ -74,6 +110,36 @@ const app = createApp({
 
     const addCustomIncome = () => customIncomes.value.push(null);
     const addCustomDays = () => customDays.value.push(null);
+
+    // Chip-group toggles for the income/days selections. Same arrays as the old
+    // native multi-selects (numbers + the "custom" sentinel) — only the control
+    // changed, not the state model.
+    const toggleSelection = (list, value) => {
+      const idx = list.value.indexOf(value);
+      if (idx === -1) list.value.push(value);
+      else list.value.splice(idx, 1);
+    };
+    const toggleIncome = (value) => {
+      toggleSelection(selectedIncomes, value);
+      // First time "custom" is switched on, seed one empty input.
+      if (
+        value === "custom" &&
+        selectedIncomes.value.includes("custom") &&
+        customIncomes.value.length === 0
+      ) {
+        addCustomIncome();
+      }
+    };
+    const toggleDay = (value) => {
+      toggleSelection(selectedDays, value);
+      if (
+        value === "custom" &&
+        selectedDays.value.includes("custom") &&
+        customDays.value.length === 0
+      ) {
+        addCustomDays();
+      }
+    };
 
     const allNetTargets = computed(() => {
       return [
@@ -171,6 +237,8 @@ const app = createApp({
       earningsPerKm,
       addCustomIncome,
       addCustomDays,
+      toggleIncome,
+      toggleDay,
       costPerKm,
       unprofitable,
       fmtRM,

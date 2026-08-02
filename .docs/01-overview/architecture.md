@@ -2,7 +2,7 @@
 
 > **TL;DR** `index.html` is the Vue template plus five CDN `<script>` tags; `app.js` is the
 > whole application — i18n messages, reactive refs, a chain of computed properties that turns
-> three inputs and two multi-selects into a cartesian-product results table, and a jsPDF
+> three inputs and two chip toggle groups into a cartesian-product results table, and a jsPDF
 > export. No components, no router, no store, no build.
 
 ## The two files
@@ -11,12 +11,13 @@
 index.html        # template + CDN loads
 ├─ <head>         # Vue 3, vue-i18n 9, Tailwind (Play CDN), jsPDF + autotable, Font Awesome
 ├─ #app           # the Vue mount point
-│  ├─ locale <select>          # bound to $i18n.locale (en / ms)
+│  ├─ hero header              # branding bar + locale <select> bound to $i18n.locale (en / ms)
 │  ├─ 3 number inputs          # fuelCost, fuelKm, earningsPerKm (v-model.number)
-│  ├─ 2 multi-selects          # selectedIncomes, selectedDays (+ "custom" option that
-│  │                           #   reveals dynamic custom-value inputs)
-│  ├─ Export to PDF button     # @click="exportPDF"
-│  └─ #resultsTable            # v-for over sortedCombinations; sortable th's
+│  ├─ 2 chip toggle groups     # selectedIncomes, selectedDays via toggleIncome/toggleDay
+│  │                           #   (+ "custom" chip that reveals dynamic custom-value inputs)
+│  ├─ Export to PDF button     # @click="exportPDF" — CTA in the results-card header
+│  └─ #resultsTable            # v-for over sortedCombinations; sortable th's; empty state
+│                              #   card when no combinations are selected
 └─ <script src="app.js">       # loaded last, after the CDN libraries
 
 app.js
@@ -50,17 +51,19 @@ Rules the code already follows and edits must preserve:
 - Computeds are **side-effect-free**; `sortedCombinations` copies before sorting.
 - Every binding used by the template is **returned from `setup()`** — an unreturned ref
   renders as blank with no error.
-- The `"custom"` option is a sentinel string mixed into a numeric multi-select; both
-  `allNetTargets` and `allWorkingDays` filter it out before `Number()`-mapping. Keep that
-  filtering if you touch the selects.
+- The `"custom"` chip is a sentinel string mixed into the numeric selection arrays
+  (`selectedIncomes` / `selectedDays` — the same state model the old native multi-selects
+  used); both `allNetTargets` and `allWorkingDays` filter it out before `Number()`-mapping.
+  `toggleIncome`/`toggleDay` only push/splice those arrays — keep that filtering if you touch
+  the chip groups.
 
-## Known edge case (unguarded)
+## Unprofitability guard (fixed in v2)
 
-`requiredKM = Math.ceil(netPerDay / netPerKm)` has **no guard for `netPerKm <= 0`**. If the
-driver's fuel cost per km meets or exceeds earnings per km, rows show negative or `Infinity`
-kilometres. Documented in
-[../06-troubleshooting/common-issues.md](../06-troubleshooting/common-issues.md); fix
-deliberately not applied by the onboarding kit (kit commits don't change app behavior).
+`computeRequirement()` in `lib/calc.js` guards `netPerKm <= 0`: if the driver's fuel cost per
+km meets or exceeds earnings per km it returns `unprofitable: true` with null figures, the UI
+shows a bilingual warning banner (`data-test="unprofitable-warning"`), and the table/PDF render
+"—" instead of impossible distances. History and the test-first fix trail in
+[../06-troubleshooting/common-issues.md](../06-troubleshooting/common-issues.md).
 
 ## i18n
 

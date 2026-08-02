@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>E Hailing Financial Calculator</title>
+    <title>E-Hailing Financial Calculator</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/vue-i18n@9/dist/vue-i18n.global.prod.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,191 +17,301 @@
       referrerpolicy="no-referrer"
     />
     <style>
-      body {
-        font-family: Helvetica, sans-serif;
-      }
       th.sortable:hover {
         cursor: pointer;
-        background-color: #2563eb;
-        color: #fff;
+        background-color: #115e59; /* teal-800 */
       }
     </style>
   </head>
-  <body class="bg-gray-100 p-4 min-h-screen">
-    <div id="app" class="max-w-7xl mx-auto">
-      <div class="flex justify-end mb-4">
-        <select v-model="$i18n.locale" class="p-2 border rounded">
-          <option value="en">🇬🇧 English</option>
-          <option value="ms">🇲🇾 Bahasa Melayu</option>
-        </select>
-      </div>
-
-      <h1 class="text-2xl font-bold mb-6">{{ $t('title') }}</h1>
-
-      <!-- Fuel Efficiency & Earnings -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div>
-          <label class="block font-semibold mb-1">{{ $t('fuelCost') }}</label>
-          <input
-            type="number"
-            v-model.number="fuelCost"
-            class="w-full p-2 border rounded"
-            placeholder="e.g. 60"
-          />
-        </div>
-        <div>
-          <label class="block font-semibold mb-1">{{ $t('fuelKm') }}</label>
-          <input
-            type="number"
-            v-model.number="fuelKm"
-            class="w-full p-2 border rounded"
-            placeholder="e.g. 400"
-          />
-        </div>
-        <div>
-          <label class="block font-semibold mb-1">{{ $t('perKm') }}</label>
-          <input
-            type="number"
-            v-model.number="earningsPerKm"
-            class="w-full p-2 border rounded"
-            placeholder="e.g. 0.7"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <label class="block mb-1 font-semibold">{{ $t('netTarget') }}</label>
-          <select
-            v-model="selectedIncomes"
-            multiple
-            class="w-full p-2 border rounded"
-          >
-            <option v-for="income in incomeOptions" :value="income">
-              {{ income }}
-            </option>
-            <option value="custom">Custom</option>
-          </select>
-          <div v-if="selectedIncomes.includes('custom')" class="mt-2">
-            <input
-              v-for="(val, index) in customIncomes"
-              :key="'ci-' + index"
-              v-model.number="customIncomes[index]"
-              type="number"
-              placeholder="Enter custom income"
-              class="mb-2 w-full p-2 border rounded"
-            />
-            <button @click="addCustomIncome" class="text-sm text-blue-600">
-              + Add Custom Income
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label class="block mb-1 font-semibold"
-            >{{ $t('workingDays') }}</label
-          >
-          <select
-            v-model="selectedDays"
-            multiple
-            class="w-full p-2 border rounded"
-          >
-            <option v-for="days in daysOptions" :value="days">
-              {{ days }}
-            </option>
-            <option value="custom">Custom</option>
-          </select>
-          <div v-if="selectedDays.includes('custom')" class="mt-2">
-            <input
-              v-for="(val, index) in customDays"
-              :key="'cd-' + index"
-              v-model.number="customDays[index]"
-              type="number"
-              placeholder="Enter custom days"
-              class="mb-2 w-full p-2 border rounded"
-            />
-            <button @click="addCustomDays" class="text-sm text-blue-600">
-              + Add Custom Days
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex justify-end mb-4">
-        <button
-          @click="exportPDF"
-          class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded"
+  <body class="bg-slate-100 min-h-screen text-slate-800 antialiased">
+    <div id="app">
+      <!-- Hero / title bar -->
+      <header class="bg-gradient-to-r from-teal-700 via-teal-600 to-cyan-600 text-white shadow-md">
+        <div
+          class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5"
         >
-          {{ $t('export') }}
-        </button>
-      </div>
-
-      <div
-        v-if="unprofitable"
-        data-test="unprofitable-warning"
-        class="mb-4 p-3 rounded border border-red-300 bg-red-50 text-red-800 font-semibold"
-      >
-        {{ $t('unprofitable', { cost: fmtRM(costPerKm), earn: fmtRM(Number(earningsPerKm)) }) }}
-      </div>
-
-      <div class="overflow-x-auto">
-        <table
-          id="resultsTable"
-          class="min-w-full table-auto border border-collapse"
-        >
-          <thead class="bg-blue-600 text-white">
-            <tr>
-              <th @click="sortBy('days')" class="p-2 border sortable">
-                <div class="flex items-center gap-2">
-                  {{ $t('table.days') }}
-                  <i
-                    v-if="sortKey === 'days'"
-                    :class="sortAsc ? 'fas fa-caret-up' : 'fas fa-caret-down'"
-                  ></i>
-                </div>
-              </th>
-              <th @click="sortBy('income')" class="p-2 border sortable">
-                <div class="flex items-center gap-2">
-                  {{ $t('table.net') }}
-                  <i
-                    v-if="sortKey === 'income'"
-                    :class="sortAsc ? 'fas fa-caret-up' : 'fas fa-caret-down'"
-                  ></i>
-                </div>
-              </th>
-              <th class="p-2 border">{{ $t('table.netPerDay') }}</th>
-              <th class="p-2 border">{{ $t('table.kmPerDay') }}</th>
-              <th class="p-2 border bg-yellow-100 text-yellow-900">
-                {{ $t('table.grossDay') }}
-              </th>
-              <th class="p-2 border">{{ $t('table.grossMonth') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(combo, index) in sortedCombinations"
-              :key="index"
-              class="hover:bg-gray-50"
+          <div class="flex items-center gap-4">
+            <div
+              class="h-12 w-12 shrink-0 rounded-2xl bg-white/15 ring-1 ring-white/25 flex items-center justify-center text-2xl"
             >
-              <td class="p-2 border">{{ combo.days }}</td>
-              <td class="p-2 border">RM {{ combo.income.toFixed(2) }}</td>
-              <td class="p-2 border">RM {{ combo.netPerDay.toFixed(2) }}</td>
-              <td class="p-2 border">
-                <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
-                <template v-else>{{ combo.requiredKM }} km</template>
-              </td>
-              <td class="p-2 border bg-yellow-50 text-yellow-900 font-semibold">
-                <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
-                <template v-else>RM {{ combo.grossPerDay.toFixed(2) }}</template>
-              </td>
-              <td class="p-2 border">
-                <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
-                <template v-else>RM {{ combo.grossPerMonth.toFixed(2) }}</template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              <i class="fas fa-taxi"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">
+                {{ $t('title') }}
+              </h1>
+              <p class="text-teal-100 text-sm mt-1">{{ $t('tagline') }}</p>
+            </div>
+          </div>
+          <select
+            v-model="$i18n.locale"
+            class="self-start sm:self-center rounded-lg border border-white/30 bg-white/10 px-3 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-white/60 [&>option]:text-slate-800"
+          >
+            <option value="en">🇬🇧 English</option>
+            <option value="ms">🇲🇾 Bahasa Melayu</option>
+          </select>
+        </div>
+      </header>
+
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <!-- Fuel & earnings inputs -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-teal-700 mb-5">
+            {{ $t('sections.inputs') }}
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div>
+              <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-1.5">
+                <i class="fas fa-gas-pump text-teal-600 w-4 text-center"></i>
+                {{ $t('fuelCost') }}
+              </label>
+              <input
+                type="number"
+                v-model.number="fuelCost"
+                class="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none"
+                placeholder="e.g. 60"
+              />
+            </div>
+            <div>
+              <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-1.5">
+                <i class="fas fa-road text-teal-600 w-4 text-center"></i>
+                {{ $t('fuelKm') }}
+              </label>
+              <input
+                type="number"
+                v-model.number="fuelKm"
+                class="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none"
+                placeholder="e.g. 400"
+              />
+            </div>
+            <div>
+              <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-1.5">
+                <i class="fas fa-coins text-teal-600 w-4 text-center"></i>
+                {{ $t('perKm') }}
+              </label>
+              <input
+                type="number"
+                v-model.number="earningsPerKm"
+                class="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none"
+                placeholder="e.g. 0.7"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Targets & working days (chip toggle groups) -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-teal-700 mb-5">
+            {{ $t('sections.targets') }}
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2.5">
+                <i class="fas fa-bullseye text-teal-600 w-4 text-center"></i>
+                {{ $t('netTarget') }}
+              </label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="income in incomeOptions"
+                  :key="'inc-' + income"
+                  type="button"
+                  @click="toggleIncome(income)"
+                  :aria-pressed="selectedIncomes.includes(income)"
+                  class="px-4 py-2 rounded-full border text-sm font-semibold transition-colors"
+                  :class="selectedIncomes.includes(income)
+                    ? 'bg-teal-600 border-teal-600 text-white shadow-sm'
+                    : 'bg-white border-slate-300 text-slate-600 hover:border-teal-400 hover:text-teal-700'"
+                >
+                  <i v-if="selectedIncomes.includes(income)" class="fas fa-check mr-1.5"></i>RM {{ income.toLocaleString() }}
+                </button>
+                <button
+                  type="button"
+                  @click="toggleIncome('custom')"
+                  :aria-pressed="selectedIncomes.includes('custom')"
+                  class="px-4 py-2 rounded-full border text-sm font-semibold transition-colors"
+                  :class="selectedIncomes.includes('custom')
+                    ? 'bg-teal-600 border-teal-600 text-white shadow-sm'
+                    : 'bg-white border-dashed border-slate-400 text-slate-500 hover:border-teal-400 hover:text-teal-700'"
+                >
+                  <i :class="selectedIncomes.includes('custom') ? 'fas fa-check mr-1.5' : 'fas fa-plus mr-1.5'"></i>{{ $t('custom') }}
+                </button>
+              </div>
+              <div v-if="selectedIncomes.includes('custom')" class="mt-3 space-y-2">
+                <input
+                  v-for="(val, index) in customIncomes"
+                  :key="'ci-' + index"
+                  v-model.number="customIncomes[index]"
+                  type="number"
+                  :placeholder="$t('customIncomePlaceholder')"
+                  class="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none"
+                />
+                <button
+                  @click="addCustomIncome"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 hover:text-teal-800"
+                >
+                  <i class="fas fa-plus"></i>{{ $t('addIncome') }}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2.5">
+                <i class="fas fa-calendar-days text-teal-600 w-4 text-center"></i>
+                {{ $t('workingDays') }}
+              </label>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="days in daysOptions"
+                  :key="'day-' + days"
+                  type="button"
+                  @click="toggleDay(days)"
+                  :aria-pressed="selectedDays.includes(days)"
+                  class="px-4 py-2 rounded-full border text-sm font-semibold transition-colors"
+                  :class="selectedDays.includes(days)
+                    ? 'bg-teal-600 border-teal-600 text-white shadow-sm'
+                    : 'bg-white border-slate-300 text-slate-600 hover:border-teal-400 hover:text-teal-700'"
+                >
+                  <i v-if="selectedDays.includes(days)" class="fas fa-check mr-1.5"></i>{{ days }} {{ $t('daysUnit') }}
+                </button>
+                <button
+                  type="button"
+                  @click="toggleDay('custom')"
+                  :aria-pressed="selectedDays.includes('custom')"
+                  class="px-4 py-2 rounded-full border text-sm font-semibold transition-colors"
+                  :class="selectedDays.includes('custom')
+                    ? 'bg-teal-600 border-teal-600 text-white shadow-sm'
+                    : 'bg-white border-dashed border-slate-400 text-slate-500 hover:border-teal-400 hover:text-teal-700'"
+                >
+                  <i :class="selectedDays.includes('custom') ? 'fas fa-check mr-1.5' : 'fas fa-plus mr-1.5'"></i>{{ $t('custom') }}
+                </button>
+              </div>
+              <div v-if="selectedDays.includes('custom')" class="mt-3 space-y-2">
+                <input
+                  v-for="(val, index) in customDays"
+                  :key="'cd-' + index"
+                  v-model.number="customDays[index]"
+                  type="number"
+                  :placeholder="$t('customDaysPlaceholder')"
+                  class="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none"
+                />
+                <button
+                  @click="addCustomDays"
+                  type="button"
+                  class="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 hover:text-teal-800"
+                >
+                  <i class="fas fa-plus"></i>{{ $t('addDays') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Unprofitable warning -->
+        <div
+          v-if="unprofitable"
+          data-test="unprofitable-warning"
+          class="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800"
+        >
+          <i class="fas fa-triangle-exclamation mt-0.5 text-rose-500"></i>
+          <p class="text-sm font-medium">
+            {{ $t('unprofitable', { cost: fmtRM(costPerKm), earn: fmtRM(Number(earningsPerKm)) }) }}
+          </p>
+        </div>
+
+        <!-- Results card -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div
+            class="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          >
+            <div class="flex items-center gap-3">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-teal-700">
+                {{ $t('sections.results') }}
+              </h2>
+              <span
+                v-if="sortedCombinations.length"
+                class="text-xs font-semibold bg-teal-50 text-teal-700 rounded-full px-2.5 py-1"
+              >
+                {{ $tc('rows', sortedCombinations.length, { n: sortedCombinations.length }) }}
+              </span>
+            </div>
+            <button
+              @click="exportPDF"
+              class="inline-flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition-colors"
+            >
+              <i class="fas fa-file-pdf"></i>
+              {{ $t('export') }}
+            </button>
+          </div>
+
+          <!-- Empty state -->
+          <div v-if="!sortedCombinations.length" class="px-6 py-14 text-center">
+            <div
+              class="mx-auto h-14 w-14 rounded-full bg-teal-50 flex items-center justify-center text-teal-500 text-xl mb-4"
+            >
+              <i class="fas fa-table-list"></i>
+            </div>
+            <p class="font-semibold text-slate-700">{{ $t('empty.title') }}</p>
+            <p class="text-sm text-slate-500 mt-1 max-w-md mx-auto">{{ $t('empty.body') }}</p>
+          </div>
+
+          <div v-else class="overflow-x-auto">
+            <table id="resultsTable" class="min-w-full text-sm">
+              <thead class="bg-teal-700 text-white">
+                <tr>
+                  <th @click="sortBy('days')" class="px-4 py-3 text-left font-semibold sortable select-none">
+                    <div class="flex items-center gap-2">
+                      {{ $t('table.days') }}
+                      <i
+                        v-if="sortKey === 'days'"
+                        :class="sortAsc ? 'fas fa-caret-up' : 'fas fa-caret-down'"
+                      ></i>
+                    </div>
+                  </th>
+                  <th @click="sortBy('income')" class="px-4 py-3 text-left font-semibold sortable select-none">
+                    <div class="flex items-center gap-2">
+                      {{ $t('table.net') }}
+                      <i
+                        v-if="sortKey === 'income'"
+                        :class="sortAsc ? 'fas fa-caret-up' : 'fas fa-caret-down'"
+                      ></i>
+                    </div>
+                  </th>
+                  <th class="px-4 py-3 text-left font-semibold">{{ $t('table.netPerDay') }}</th>
+                  <th class="px-4 py-3 text-left font-semibold">{{ $t('table.kmPerDay') }}</th>
+                  <th class="px-4 py-3 text-left font-semibold bg-teal-800/70">
+                    {{ $t('table.grossDay') }}
+                  </th>
+                  <th class="px-4 py-3 text-left font-semibold">{{ $t('table.grossMonth') }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr
+                  v-for="(combo, index) in sortedCombinations"
+                  :key="index"
+                  class="hover:bg-teal-50/60 transition-colors"
+                >
+                  <td class="px-4 py-2.5">{{ combo.days }}</td>
+                  <td class="px-4 py-2.5">RM {{ combo.income.toFixed(2) }}</td>
+                  <td class="px-4 py-2.5">RM {{ combo.netPerDay.toFixed(2) }}</td>
+                  <td class="px-4 py-2.5">
+                    <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
+                    <template v-else>{{ combo.requiredKM }} km</template>
+                  </td>
+                  <td class="px-4 py-2.5 bg-teal-50 text-teal-900 font-semibold">
+                    <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
+                    <template v-else>RM {{ combo.grossPerDay.toFixed(2) }}</template>
+                  </td>
+                  <td class="px-4 py-2.5">
+                    <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
+                    <template v-else>RM {{ combo.grossPerMonth.toFixed(2) }}</template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
     </div>
   </body>
   <script type="module" src="app.js"></script>

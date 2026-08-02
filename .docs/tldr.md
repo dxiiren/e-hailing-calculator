@@ -13,8 +13,8 @@ gross/month for every combination in a sortable, PDF-exportable table. Vue 3 + v
 
 ## [01-overview/architecture.md](01-overview/architecture.md)
 
-`index.html` holds the Vue template (Tailwind-classed inputs, two multi-selects, the results
-table) and the CDN `<script>` tags; `app.js` holds everything else — the `en`/`ms` i18n message
+`index.html` holds the Vue template (a teal hero header, Tailwind-classed inputs, two chip
+toggle groups, the results card) and the CDN `<script>` tags; `app.js` holds everything else — the `en`/`ms` i18n message
 trees, the reactive refs, and a chain of computed properties: `costPerKm` = fuel cost / fuel km,
 net per km = earnings per km − cost per km, `requiredKM` = ceil(net per day / net per km), then
 gross/day and gross/month. `targetCombinations` is the cartesian product of selected incomes ×
@@ -63,8 +63,9 @@ entire app. Everything else is tooling: `justfile` (recipes), `setup.ps1` (boots
 The recurring issues are environmental, not code: a stale PATH after `setup.ps1` (reopen
 PowerShell), port 8118 held by a previous serve (`just stop`), a server window that outlived
 its session (`just stop` again — it is path-scoped and safe), a blank/unstyled page when
-offline (the CDN libraries never loaded), and negative "Required KM/Day" rows when the inputs
-are unprofitable (no guard in the math — enter realistic values).
+offline (the CDN libraries never loaded), and the historical negative "Required KM/Day" rows
+from unprofitable inputs — fixed test-first in v2 (the app now shows a warning banner; if you
+still see negative distances you are on a pre-v2 checkout).
 
 ## [07-faq/faq.md](07-faq/faq.md)
 
