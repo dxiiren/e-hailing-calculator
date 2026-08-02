@@ -17,7 +17,8 @@
 
 - **Every UI string goes through `$t()`** with the key present in BOTH `messages.en` and
   `messages.ms` in `app.js`. A key missing from `ms` silently falls back to English — easy to
-  miss if you only test one locale.
+  miss if you only test one locale, which is why `tests/dom/i18n.test.js` asserts the two
+  trees have an identical key set. Run `just test` after touching either tree.
 - **Return what you bind.** Anything the template references must be in the object returned
   from `setup()`; a forgotten return renders as blank with no console error.
 - **Keep computeds pure.** The chain `costPerKm → targetCombinations → sortedCombinations`

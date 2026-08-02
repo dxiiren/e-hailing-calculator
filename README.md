@@ -58,9 +58,10 @@ Run `just` with no arguments to list every recipe. The ones you'll use daily:
 
 ## Testing
 
-The calculator math lives in [`lib/calc.js`](lib/calc.js) — a pure, dependency-free ES module
-imported by both the browser app and the test suite. [`tests/calc.test.js`](tests/calc.test.js)
-covers:
+`just test` runs 50 Vitest tests in two layers.
+
+**The math** — [`lib/calc.js`](lib/calc.js) is a pure, dependency-free ES module imported by
+both the browser app and the tests. [`tests/calc.test.js`](tests/calc.test.js) covers:
 
 - **Regression pins** — the profitable default inputs (RM 60 fuel / 400 km / RM 0.70 per km)
   must keep producing exactly the numbers the original in-component math did
@@ -68,6 +69,21 @@ covers:
 - **The unprofitability guard** — cost/km ≥ earnings/km must flag the combo, never return a
   negative or Infinite `requiredKM` (see the Fixed note below).
 - **Edge inputs** — zero `fuelKm`, zero earnings, unfilled custom rows.
+
+**The view layer** — [`tests/dom/`](tests/dom/) renders the real app in jsdom:
+[`app-ui.test.js`](tests/dom/app-ui.test.js) drives the chip toggle groups (including the
+seed-one-custom-input rule), the unprofitable banner, the results table and its sorting, the
+row-count badge and the PDF export; [`i18n.test.js`](tests/dom/i18n.test.js) holds the `en`
+and `ms` message trees to the same key set.
+
+The DOM harness ([`tests/helpers/mountApp.js`](tests/helpers/mountApp.js)) extracts the
+`<div id="app">` block straight out of `index.html`, installs `Vue`/`VueI18n` as globals and
+imports `app.js` — the same sequence the browser performs — so a template edit that breaks a
+control fails the suite instead of drifting away from a copied fixture. **No application code
+was changed to make this testable**; the app still ships with no build step. `vue` and
+`vue-i18n` are dev-only dependencies pinned to the same majors as the CDN tags in
+`index.html`, and `vitest.config.js` aliases both to their full builds because the in-DOM
+template needs the runtime compiler.
 
 ```powershell
 just test        # npm install (first run only) + vitest run
@@ -120,9 +136,13 @@ e-hailing-calculator/
   index.html      # UI markup — Vue template, Tailwind classes, CDN <script> tags
   app.js          # Vue 3 app — i18n messages, reactive inputs, PDF export (ES module)
   lib/calc.js     # pure calculator math — imported by app.js and the tests
-  tests/          # Vitest suite: regression pins, unprofitability guard, edge inputs
+  tests/          # Vitest suite
+    calc.test.js  #   pure math: regression pins, unprofitability guard, edge inputs
+    dom/          #   jsdom specs: chip toggles, banner, table, PDF export, i18n parity
+    helpers/      #   mountApp.js — renders index.html's template and imports app.js
+  vitest.config.js# aliases vue/vue-i18n to their full builds (in-DOM template needs the compiler)
   docs/images/    # README screenshot
-  package.json    # dev-only test harness (vitest); the app itself has no build step
+  package.json    # dev-only test harness (vitest + vue/vue-i18n/jsdom); the app has no build step
   justfile        # dev recipes: start / serve / stop / open / test
   setup.ps1       # one-time machine bootstrap (idempotent)
   README.md

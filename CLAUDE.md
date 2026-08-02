@@ -24,7 +24,7 @@ table you can export to PDF. Bilingual UI (English / Bahasa Melayu) via vue-i18n
 | Styling | Tailwind CSS (CDN Play build) + Font Awesome 6.7.2 | Utility classes inline in `index.html`; FA carets show sort direction |
 | PDF export | jsPDF 2.5.1 + jspdf-autotable 3.5.29 (CDN) | `exportPDF()` saves `financial_calculator.pdf` |
 | Calculator math | `lib/calc.js` (pure ES module) | Imported by `app.js` (script is `type="module"`) and by the tests |
-| Tests | Vitest (dev-only npm dependency) | `just test` (or `npm test`); suite in `tests/calc.test.js`; no build step for the app itself |
+| Tests | Vitest (dev-only npm dependency) | `just test` (or `npm test`) — 50 tests. `tests/calc.test.js` pins the pure math; `tests/dom/*` render the real `index.html` template in jsdom (chips, unprofitable banner, table sorting, PDF export, en/ms key parity) via `tests/helpers/mountApp.js`. `vue`/`vue-i18n`/`jsdom` are dev-only, pinned to the CDN majors; `vitest.config.js` aliases vue and vue-i18n to their full builds because the in-DOM template needs the runtime compiler. The app itself still has no build step. |
 | Serving | `python -m http.server` via uv | `just start` on 127.0.0.1:8118; no build step, no backend; `package.json` exists only for the Vitest harness |
 
 ### Project Structure
@@ -34,7 +34,11 @@ e-hailing-calculator/
   index.html      # UI markup — Vue template, Tailwind classes, CDN <script> tags
   app.js          # Vue 3 app — i18n messages, reactive inputs, PDF export (ES module)
   lib/calc.js     # pure calculator math — imported by app.js and the tests
-  tests/          # Vitest suite: regression pins, unprofitability guard, edge inputs
+  tests/          # Vitest suite
+    calc.test.js  #   pure math: regression pins, unprofitability guard, edge inputs
+    dom/          #   jsdom specs: chip toggles, banner, table, PDF export, i18n parity
+    helpers/      #   mountApp.js — mounts index.html's template + app.js, no source changes
+  vitest.config.js# vue/vue-i18n full-build aliases for the in-DOM template
   docs/images/    # README screenshot
   package.json    # dev-only test harness (vitest devDependency; node_modules git-ignored)
   justfile        # dev recipes: start / serve / stop / open / test
