@@ -136,6 +136,14 @@
         </button>
       </div>
 
+      <div
+        v-if="unprofitable"
+        data-test="unprofitable-warning"
+        class="mb-4 p-3 rounded border border-red-300 bg-red-50 text-red-800 font-semibold"
+      >
+        {{ $t('unprofitable', { cost: fmtRM(costPerKm), earn: fmtRM(Number(earningsPerKm)) }) }}
+      </div>
+
       <div class="overflow-x-auto">
         <table
           id="resultsTable"
@@ -178,12 +186,17 @@
               <td class="p-2 border">{{ combo.days }}</td>
               <td class="p-2 border">RM {{ combo.income.toFixed(2) }}</td>
               <td class="p-2 border">RM {{ combo.netPerDay.toFixed(2) }}</td>
-              <td class="p-2 border">{{ combo.requiredKM }} km</td>
+              <td class="p-2 border">
+                <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
+                <template v-else>{{ combo.requiredKM }} km</template>
+              </td>
               <td class="p-2 border bg-yellow-50 text-yellow-900 font-semibold">
-                RM {{ combo.grossPerDay.toFixed(2) }}
+                <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
+                <template v-else>RM {{ combo.grossPerDay.toFixed(2) }}</template>
               </td>
               <td class="p-2 border">
-                RM {{ combo.grossPerMonth.toFixed(2) }}
+                <template v-if="combo.unprofitable">{{ $t('notApplicable') }}</template>
+                <template v-else>RM {{ combo.grossPerMonth.toFixed(2) }}</template>
               </td>
             </tr>
           </tbody>

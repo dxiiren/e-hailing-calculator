@@ -1,4 +1,8 @@
-import { computeCostPerKm, computeCombinations } from "./lib/calc.js";
+import {
+  computeCostPerKm,
+  computeCombinations,
+  isUnprofitable,
+} from "./lib/calc.js";
 
 const messages = {
   en: {
@@ -9,6 +13,9 @@ const messages = {
     netTarget: "Net Income Targets (RM) - multiple selections allowed",
     workingDays: "Working Days per Month - multiple selections allowed",
     export: "Export to PDF",
+    unprofitable:
+      "⚠️ Unprofitable: your fuel cost per km (RM {cost}) is at or above your earnings per km (RM {earn}). No distance can reach a net income target — raise earnings per km or cut fuel cost.",
+    notApplicable: "—",
     table: {
       days: "Working Days",
       net: "Net Target",
@@ -26,6 +33,9 @@ const messages = {
     netTarget: "Sasaran Pendapatan Bersih (RM) - pelbagai pilihan dibenarkan",
     workingDays: "Hari Bekerja Sebulan - pelbagai pilihan dibenarkan",
     export: "Eksport ke PDF",
+    unprofitable:
+      "⚠️ Tidak menguntungkan: kos petrol setiap km (RM {cost}) sama atau melebihi pendapatan setiap km (RM {earn}). Tiada jarak yang dapat mencapai sasaran pendapatan bersih — naikkan pendapatan setiap km atau kurangkan kos petrol.",
+    notApplicable: "—",
     table: {
       days: "Hari Bekerja",
       net: "Sasaran Bersih",
@@ -83,6 +93,17 @@ const app = createApp({
       computeCostPerKm({ fuelCost: fuelCost.value, fuelKm: fuelKm.value })
     );
 
+    const unprofitable = computed(() =>
+      isUnprofitable({
+        fuelCost: fuelCost.value,
+        fuelKm: fuelKm.value,
+        earningsPerKm: earningsPerKm.value,
+      })
+    );
+
+    // RM formatter that survives Infinity (fuelKm 0) and blank inputs.
+    const fmtRM = (v) => (Number.isFinite(v) ? v.toFixed(2) : "∞");
+
     const targetCombinations = computed(() =>
       computeCombinations({
         incomes: allNetTargets.value,
@@ -129,9 +150,9 @@ const app = createApp({
         combo.days,
         `RM ${combo.income.toFixed(2)}`,
         `RM ${combo.netPerDay.toFixed(2)}`,
-        `${combo.requiredKM} km`,
-        `RM ${combo.grossPerDay.toFixed(2)}`,
-        `RM ${combo.grossPerMonth.toFixed(2)}`,
+        combo.unprofitable ? "—" : `${combo.requiredKM} km`,
+        combo.unprofitable ? "—" : `RM ${combo.grossPerDay.toFixed(2)}`,
+        combo.unprofitable ? "—" : `RM ${combo.grossPerMonth.toFixed(2)}`,
       ]);
 
       doc.autoTable({ head: headers, body: rows, startY: 20 });
@@ -151,6 +172,8 @@ const app = createApp({
       addCustomIncome,
       addCustomDays,
       costPerKm,
+      unprofitable,
+      fmtRM,
       allNetTargets,
       allWorkingDays,
       targetCombinations,
