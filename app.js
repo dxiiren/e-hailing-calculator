@@ -1,3 +1,5 @@
+import { computeCostPerKm, computeCombinations } from "./lib/calc.js";
+
 const messages = {
   en: {
     title: "📊 E Hailing Financial Calculator",
@@ -77,31 +79,19 @@ const app = createApp({
       ];
     });
 
-    const costPerKm = computed(() => fuelCost.value / fuelKm.value);
+    const costPerKm = computed(() =>
+      computeCostPerKm({ fuelCost: fuelCost.value, fuelKm: fuelKm.value })
+    );
 
-    const targetCombinations = computed(() => {
-      const results = [];
-      for (const income of allNetTargets.value) {
-        for (const days of allWorkingDays.value) {
-          if (income && days && costPerKm.value) {
-            const netPerDay = income / days;
-            const netPerKm = earningsPerKm.value - costPerKm.value;
-            const requiredKM = Math.ceil(netPerDay / netPerKm);
-            const grossPerDay = requiredKM * earningsPerKm.value;
-            const grossPerMonth = grossPerDay * days;
-            results.push({
-              income,
-              days,
-              netPerDay,
-              requiredKM,
-              grossPerDay,
-              grossPerMonth,
-            });
-          }
-        }
-      }
-      return results;
-    });
+    const targetCombinations = computed(() =>
+      computeCombinations({
+        incomes: allNetTargets.value,
+        daysList: allWorkingDays.value,
+        fuelCost: fuelCost.value,
+        fuelKm: fuelKm.value,
+        earningsPerKm: earningsPerKm.value,
+      })
+    );
 
     const sortedCombinations = computed(() => {
       return [...targetCombinations.value].sort((a, b) => {
