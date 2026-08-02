@@ -1,8 +1,8 @@
 # Common issues
 
 > **TL;DR** Almost everything that breaks here is environmental: stale PATH, a lingering
-> server on 8118, or missing internet for the CDN libraries. The one in-app gotcha is
-> negative "Required KM/Day" from unprofitable inputs.
+> server on 8118, or missing internet for the CDN libraries. The historical in-app gotcha —
+> negative "Required KM/Day" from unprofitable inputs — was fixed (test-first) in v2.
 
 ## `just` or `uv` is not recognized
 
@@ -47,18 +47,23 @@ page load. Offline (or behind a blocking proxy) the HTML arrives but the app nev
 regression — see [../04-deployment/deployment.md](../04-deployment/deployment.md) for the
 vendoring option if it ever matters.
 
-## The table shows negative "Required KM/Day" or huge numbers
+## The table shows negative "Required KM/Day" or huge numbers — FIXED (v2)
 
-**Symptom** — rows like `-1167 km` or absurd gross values.
+**Symptom (historical)** — rows like `-1167 km`, `Infinity km`, or absurd gross values when
+fuel cost per km ≥ earnings per km.
 
-**Cause** — the math has no unprofitability guard: `requiredKM = ceil(netPerDay / netPerKm)`
-where `netPerKm = earningsPerKm − fuelCost/fuelKm`. If cost per km ≥ earnings per km, the
-divisor is zero or negative and the result flips sign or explodes. Known issue, deliberately
-left un-"fixed" by the onboarding kit (kit commits don't change app behavior).
+**Cause** — the original in-component math had no unprofitability guard:
+`requiredKM = ceil(netPerDay / netPerKm)` where `netPerKm = earningsPerKm − fuelCost/fuelKm`.
+With cost per km ≥ earnings per km the divisor is zero or negative and the result flipped
+sign or exploded.
 
-**Fix (as a user)** — enter profitable values; the defaults (60 / 400 / 0.70 → cost RM 0.15/km
-vs earnings RM 0.70/km) are safe. **Fix (as a developer)** — add a `netPerKm <= 0` guard in
-`targetCombinations` and decide whether to skip or flag the combo; keep `exportPDF()` in sync.
+**Fix (v2, test-first)** — the math was extracted into pure `lib/calc.js` with regression
+tests pinning the old profitable-case numbers, then a failing test
+(`flags unprofitable when fuel cost per km >= earnings per km`) was written and run RED, then
+`computeRequirement()` was changed to return `unprofitable: true` with null figures. The UI
+shows a red bilingual (EN/MS) warning banner and renders "—" in the table and PDF export.
+Run `just test` to see the suite; if you still get negative distances you are on a pre-v2
+checkout — pull `main`.
 
 ## Tailwind console warning
 
