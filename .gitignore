@@ -3,3 +3,6 @@
 .mcp.json
 .claude/settings.local.json
 .claude/workspace/
+
+# Node — dev-only test harness (Vitest); the app itself is CDN-served.
+node_modules/

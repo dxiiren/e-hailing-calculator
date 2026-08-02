@@ -15,6 +15,11 @@ default:
 _require-uv:
     @if (-not (Get-Command uv -ErrorAction SilentlyContinue)) { Write-Error "uv not found on PATH.`n  -> Run setup.ps1 first:  pwsh ./setup.ps1"; exit 1 }
 
+# node — installed by setup.ps1 (winget Node LTS); runs the Vitest suite.
+[private]
+_require-node:
+    @if (-not (Get-Command node -ErrorAction SilentlyContinue)) { Write-Error "node not found on PATH.`n  -> Run setup.ps1 first:  pwsh ./setup.ps1"; exit 1 }
+
 # ─── App lifecycle ───────────────────────────────────────
 
 # Runs `stop` first so a previous run's server doesn't linger. The --directory arg
@@ -38,6 +43,15 @@ stop:
 # Open the served site in the default browser (start the server first).
 open:
     Start-Process "http://127.0.0.1:{{port}}"
+
+# ─── Tests ───────────────────────────────────────────────
+
+# npm install is a no-op after the first run (node_modules is git-ignored;
+# package-lock.json is committed, so installs are reproducible).
+# Run the unit tests (npm install + vitest run).
+test: _require-node
+    npm install --no-audit --no-fund
+    npx vitest run
 
 # ─── Tools ───────────────────────────────────────────────
 

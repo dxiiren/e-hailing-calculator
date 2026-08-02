@@ -1,0 +1,13 @@
+{
+  "name": "e-hailing-cal",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Bilingual (EN/MS) e-hailing income calculator - Vue 3 via CDN, no build step. package.json exists only for the Vitest dev harness.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.10"
+  }
+}
