@@ -1,4 +1,4 @@
-# CLAUDE.md — e-hailing-cal
+# CLAUDE.md — e-hailing-calculator
 
 > Human-facing developer docs live in [`.docs/`](./.docs/README.md) — start at
 > [`.docs/tldr.md`](./.docs/tldr.md). Keep them in sync when changing behavior they document.
@@ -11,7 +11,7 @@ net-income targets and working-day counts (presets or custom), and the app compu
 required km/day plus gross earnings per day and month for every combination — in a sortable
 table you can export to PDF. Bilingual UI (English / Bahasa Melayu) via vue-i18n.
 
-- **Repo:** GitHub — `github.com/dxiiren/e-hailing-cal`
+- **Repo:** GitHub — `github.com/dxiiren/e-hailing-calculator`
 - **Live demo:** https://e-hailing-cal.vercel.app (static hosting of the same files).
   Locally, `just start` serves on `http://127.0.0.1:8118`.
 
@@ -30,7 +30,7 @@ table you can export to PDF. Bilingual UI (English / Bahasa Melayu) via vue-i18n
 ### Project Structure
 
 ```
-e-hailing-cal/
+e-hailing-calculator/
   index.html      # UI markup — Vue template, Tailwind classes, CDN <script> tags
   app.js          # Vue 3 app — i18n messages, reactive inputs, PDF export (ES module)
   lib/calc.js     # pure calculator math — imported by app.js and the tests

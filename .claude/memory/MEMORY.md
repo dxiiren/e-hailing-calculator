@@ -1,4 +1,4 @@
-# Project memory index — e-hailing-cal
+# Project memory index — e-hailing-calculator
 
 One line per memory: `- [Title](file.md) — hook`. See CLAUDE.md `## Memory` for the protocol.
 

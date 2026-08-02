@@ -112,5 +112,5 @@ OVERALL: PASS | FAIL
 - Adapted from akmal-resume-website's lint-check (ESLint/Prettier/typecheck) for this
   toolchain-less static repo: replaced the npm layers with an stdlib HTML parse, a
   kit-placeholder grep, and a debug-leftover grep.
-- Ported from career-estimation for e-hailing-cal: layer 3 now also greps `app.js`
+- Ported from career-estimation for e-hailing-calculator: layer 3 now also greps `app.js`
   (this repo has real JavaScript — the Vue 3 calculator logic).

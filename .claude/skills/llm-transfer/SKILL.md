@@ -296,5 +296,5 @@ That's the shape of every handoff - scale each section up or down to fit the tas
 - Ported from akmal-resume-website - same 9-section framework and dual-mode design; personas,
   stack lines, and the worked example adapted from the Nuxt/TypeScript stack to this repo's
   static HTML/CSS page.
-- Ported from career-estimation for e-hailing-cal: stack lines and the worked example now
+- Ported from career-estimation for e-hailing-calculator: stack lines and the worked example now
   reflect the CDN-loaded Vue 3 + vue-i18n calculator (index.html + app.js).

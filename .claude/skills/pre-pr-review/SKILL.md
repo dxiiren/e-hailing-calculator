@@ -138,7 +138,7 @@ directive, never judgmental.
 - Adapted from akmal-resume-website's Vue/Nuxt checklist for this static single-page repo:
   dropped reactivity/composable/coverage/Tailwind checks, added well-formedness, print-layout,
   external-dependency, and content-accuracy checks; serve check replaces the coverage gate.
-- Ported from career-estimation for e-hailing-cal: print-layout/content-accuracy checks
+- Ported from career-estimation for e-hailing-calculator: print-layout/content-accuracy checks
   replaced with i18n-integrity (en + ms message trees), Vue-correctness (setup() returns,
   `:key`, computed purity), and calculation-accuracy (table vs `exportPDF()`) checks; `app.js`
   added to the review scope.

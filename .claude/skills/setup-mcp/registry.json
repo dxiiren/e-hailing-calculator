@@ -1,5 +1,5 @@
 {
-  "_doc": "One record per MCP server for e-hailing-cal. Read by the setup-mcp skill. installType: http|npx|sse|node. secret: none|PAT|OAuth|seat. enableTier: turnkey|per-dev|conditional. Enablement targets: turnkey -> enabledMcpjsonServers in committed .claude/settings.json; per-dev/conditional -> git-ignored .claude/settings.local.json. Config (command/args/url/headers) lives in .mcp.json.stub (committed placeholders) + .mcp.json (git-ignored real). Smoke tests live in test-all-mcp/checks/{server}.txt.",
+  "_doc": "One record per MCP server for e-hailing-calculator. Read by the setup-mcp skill. installType: http|npx|sse|node. secret: none|PAT|OAuth|seat. enableTier: turnkey|per-dev|conditional. Enablement targets: turnkey -> enabledMcpjsonServers in committed .claude/settings.json; per-dev/conditional -> git-ignored .claude/settings.local.json. Config (command/args/url/headers) lives in .mcp.json.stub (committed placeholders) + .mcp.json (git-ignored real). Smoke tests live in test-all-mcp/checks/{server}.txt.",
   "servers": {
     "context7": {
       "name": "context7",
@@ -21,7 +21,7 @@
     },
     "github": {
       "name": "github",
-      "purpose": "Official GitHub MCP - repo / PR / issue on github.com/dxiiren/e-hailing-cal. Used by create-pr.",
+      "purpose": "Official GitHub MCP - repo / PR / issue on github.com/dxiiren/e-hailing-calculator. Used by create-pr.",
       "installType": "http",
       "secret": "PAT",
       "enableTier": "per-dev",

@@ -4,7 +4,7 @@
 > documentation, or Claude Code configuration.
 
 ```
-e-hailing-cal/
+e-hailing-calculator/
   index.html          # THE APP's markup — Vue template, Tailwind classes, CDN <script> tags
   app.js              # THE APP's logic — i18n messages (en/ms), reactive state, money math,
                       #   sorting, jsPDF export

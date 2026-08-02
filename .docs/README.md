@@ -1,6 +1,6 @@
 # E-Hailing Financial Calculator — developer documentation
 
-Documentation for the `e-hailing-cal` repo: a single-page Vue 3 (CDN) financial calculator for
+Documentation for the `e-hailing-calculator` repo: a single-page Vue 3 (CDN) financial calculator for
 e-hailing drivers, served locally on port 8118.
 
 > **New here? Start with [`tldr.md`](tldr.md)** — every document below summarised in 30 seconds

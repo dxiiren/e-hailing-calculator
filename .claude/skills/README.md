@@ -1,4 +1,4 @@
-# Skills Catalog — `e-hailing-cal`
+# Skills Catalog — `e-hailing-calculator`
 
 Project development skills for this static single-page e-hailing financial calculator
 (`index.html` + `app.js`, Vue 3 + vue-i18n + Tailwind via CDN, no build; served on :8118 via

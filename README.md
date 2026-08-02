@@ -116,7 +116,7 @@ More in [`.docs/06-troubleshooting/common-issues.md`](.docs/06-troubleshooting/c
 ## Project layout
 
 ```
-e-hailing-cal/
+e-hailing-calculator/
   index.html      # UI markup — Vue template, Tailwind classes, CDN <script> tags
   app.js          # Vue 3 app — i18n messages, reactive inputs, PDF export (ES module)
   lib/calc.js     # pure calculator math — imported by app.js and the tests

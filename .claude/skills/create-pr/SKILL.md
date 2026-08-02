@@ -7,7 +7,7 @@ model: opus
 # Create PR — Push branch, open a GitHub PR into `main`
 
 Open a GitHub pull request from the current feature branch into `main` on
-`github.com/dxiiren/e-hailing-cal`.
+`github.com/dxiiren/e-hailing-calculator`.
 
 ## Trigger
 

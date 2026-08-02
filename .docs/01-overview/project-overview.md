@@ -53,8 +53,9 @@ at load time because every library comes from a CDN.
 
 ## Repo history
 
-The repo lives at `github.com/dxiiren/e-hailing-cal` and was earlier named
-`e-hailing-financial-calculator` (the pre-kit README carried both names). Development history
+The repo lives at `github.com/dxiiren/e-hailing-calculator` and was earlier named
+`e-hailing-financial-calculator`, then `e-hailing-cal` (the pre-kit README carried both
+early names). Development history
 is a series of label/i18n refinements on top of the original calculator.
 
 ## Related docs
